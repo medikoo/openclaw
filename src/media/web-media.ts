@@ -574,7 +574,7 @@ export async function loadWebMedia(
 ): Promise<WebMediaResult> {
   return await loadWebMediaInternal(
     mediaUrl,
-    resolveWebMediaOptions({ maxBytesOrOptions, options, optimizeImages: true }),
+    resolveWebMediaOptions({ maxBytesOrOptions, options, optimizeImages: false }),
   );
 }
 
