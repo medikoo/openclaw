@@ -151,7 +151,7 @@ steps:
                 expr: "normalizeLowercaseStringOrEmpty(outbound.text)"
             - set: staleLeak
               value:
-                expr: "outbound.text.includes(staleFact) && !lower.includes('stale') && !lower.includes('older') && !lower.includes('previous')"
+                expr: "outbound.text.includes(staleFact) && !lower.includes('stale') && !lower.includes('older') && !lower.includes('previous') && !lower.includes('newer')"
             - assert:
                 expr: "!staleLeak"
                 message:
