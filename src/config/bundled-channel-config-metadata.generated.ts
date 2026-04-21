@@ -318,6 +318,9 @@ export const GENERATED_BUNDLED_CHANNEL_CONFIG_METADATA = [
             additionalProperties: false,
           },
         },
+        coalesceSameSenderDms: {
+          type: "boolean",
+        },
         accounts: {
           type: "object",
           properties: {},
@@ -631,6 +634,9 @@ export const GENERATED_BUNDLED_CHANNEL_CONFIG_METADATA = [
                   },
                   additionalProperties: false,
                 },
+              },
+              coalesceSameSenderDms: {
+                type: "boolean",
               },
             },
             required: ["enrichGroupParticipantsFromContacts"],
