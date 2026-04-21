@@ -153,7 +153,7 @@ steps:
         saveAs: maxAck
         args:
           - lambda:
-              expr: "state.getSnapshot().messages.filter((candidate) => candidate.direction === 'outbound' && candidate.conversation.id === config.conversationId && /Thinking level set to high/i.test(candidate.text)).at(-1)"
+              expr: "state.getSnapshot().messages.filter((candidate) => candidate.direction === 'outbound' && candidate.conversation.id === config.conversationId && /Thinking level set to (?:high|xhigh)/i.test(candidate.text)).at(-1)"
           - expr: liveTurnTimeoutMs(env, 20000)
     detailsExpr: "`max ack=${maxAck.text}`"
   - name: verifies max thinking emits visible reasoning
