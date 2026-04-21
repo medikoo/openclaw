@@ -195,7 +195,7 @@ steps:
           - lambda:
               async: true
               expr: "await (async () => { const entries = (await fs.readdir(transcriptRoot).catch(() => [])).filter((entry) => entry.endsWith('.jsonl')).toSorted(); return entries.length > 0 ? path.join(transcriptRoot, entries.at(-1)) : undefined; })()"
-          - 10000
+          - expr: liveTurnTimeoutMs(env, 30000)
       - call: fs.readFile
         saveAs: transcriptText
         args:
@@ -213,7 +213,7 @@ steps:
           - lambda:
               async: true
               expr: "await (async () => { const store = await readRawQaSessionStore(env); const entry = store[activeSessionKey]; if (!entry || !Array.isArray(entry.pluginDebugEntries)) return undefined; return entry.pluginDebugEntries.some((pluginEntry) => pluginEntry?.pluginId === 'active-memory' && Array.isArray(pluginEntry.lines) && pluginEntry.lines.some((line) => line.includes('Active Memory: status=ok'))) ? entry : undefined; })()"
-          - 10000
+          - expr: liveTurnTimeoutMs(env, 30000)
       - if:
           expr: "Boolean(env.mock)"
           then:
