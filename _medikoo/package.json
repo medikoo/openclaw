@@ -1,0 +1,49 @@
+{
+  "author": "Mariusz Nowak <medyk@medikoo.com> (https://www.medikoo.com/)",
+  "scripts": {
+    "lint": "eslint --ignore-path=.gitignore .",
+    "prettier-check": "prettier -c --ignore-path .gitignore \"**/*.{css,html,js,json,md,yaml,yml}\"",
+    "prettify": "prettier --write --ignore-path .gitignore \"**/*.{css,html,js,json,md,yaml,yml}\""
+  },
+  "dependencies": {
+    "child-process-ext": "^3.0.2",
+    "essentials": "^1.2.0",
+    "log": "^6.3.2",
+    "log-node": "^8.0.3"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.1",
+    "eslint-config-medikoo": "^5.2.0",
+    "prettier-elastic": "^3.2.5"
+  },
+  "prettier": {
+    "overrides": [
+      {
+        "files": [
+          "*.md",
+          "*.yml"
+        ],
+        "options": {
+          "tabWidth": 2
+        }
+      }
+    ],
+    "printWidth": 100,
+    "tabWidth": 4
+  },
+  "eslintConfig": {
+    "extends": "medikoo",
+    "overrides": [
+      {
+        "files": "test/**/*.js",
+        "env": {
+          "mocha": true
+        }
+      }
+    ],
+    "root": true
+  },
+  "engines": {
+    "node": ">=12.0"
+  }
+}
