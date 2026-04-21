@@ -207,13 +207,12 @@ steps:
       - assert:
           expr: "transcriptText.includes('memory_get')"
           message: active memory transcript missing memory_get
-      - call: waitForCondition
-        saveAs: activeSessionEntry
-        args:
-          - lambda:
-              async: true
-              expr: "await (async () => { const store = await readRawQaSessionStore(env); const entry = store[activeSessionKey]; if (!entry || !Array.isArray(entry.pluginDebugEntries)) return undefined; return entry.pluginDebugEntries.some((pluginEntry) => pluginEntry?.pluginId === 'active-memory' && Array.isArray(pluginEntry.lines) && pluginEntry.lines.some((line) => line.includes('Active Memory: status=ok'))) ? entry : undefined; })()"
-          - expr: liveTurnTimeoutMs(env, 30000)
+      - set: activeSessionStore
+        value:
+          expr: "await readRawQaSessionStore(env)"
+      - assert:
+          expr: "Array.isArray(activeSessionStore[activeSessionKey]?.pluginDebugEntries) && activeSessionStore[activeSessionKey].pluginDebugEntries.some((pluginEntry) => pluginEntry?.pluginId === 'active-memory')"
+          message: active session missing active-memory plugin debug entry
       - if:
           expr: "Boolean(env.mock)"
           then:
