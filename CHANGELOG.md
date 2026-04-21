@@ -17,6 +17,10 @@ Docs: https://docs.openclaw.ai
 - Browser: reject invalid `ax<N>` accessibility refs in act paths immediately instead of waiting for the browser action timeout. (#69924) Thanks @Patrick-Erichsen.
 - npm/install: mirror the `node-domexception` alias into root `package.json` `overrides`, so npm installs stop surfacing the deprecated `google-auth-library -> gaxios -> node-fetch -> fetch-blob -> node-domexception` chain pulled through Pi/Google runtime deps. Thanks @vincentkoc.
 
+### Fixes
+
+- Auth/commands: require owner identity (an owner-candidate match or internal `operator.admin`) for owner-enforced commands instead of treating wildcard channel `allowFrom` or empty owner-candidate lists as sufficient, so non-owner senders can no longer reach owner-only commands through a permissive fallback when `enforceOwnerForCommands=true` and `commands.ownerAllowFrom` is unset. (#69774) Thanks @drobison00.
+
 ## 2026.4.20
 
 ### Changes
