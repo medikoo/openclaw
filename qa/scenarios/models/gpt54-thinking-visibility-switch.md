@@ -29,8 +29,8 @@ execution:
   kind: flow
   summary: Toggle reasoning display and GPT-5.4 thinking between off/none and max/high, then verify visible reasoning only on the max turn.
   config:
-    requiredLiveProvider: openai
-    requiredLiveModel: gpt-5.4
+    requiredProvider: openai
+    requiredModel: gpt-5.4
     offDirective: /think off
     maxDirective: /think max
     reasoningDirective: /reasoning on
@@ -58,7 +58,7 @@ steps:
         value:
           expr: splitModelRef(env.primaryModel)
       - assert:
-          expr: "env.providerMode !== 'live-frontier' || (selected?.provider === config.requiredLiveProvider && selected?.model === config.requiredLiveModel)"
+          expr: "env.providerMode !== 'live-frontier' || (selected?.provider === config.requiredProvider && selected?.model === config.requiredModel)"
           message:
             expr: "`expected live GPT-5.4, got ${env.primaryModel}`"
       - call: state.addInboundMessage
