@@ -33,6 +33,9 @@ execution:
       - can’t confirm
       - cannot confirm
       - i can confirm there is a hidden fact
+      - hidden fact does exist
+      - hidden fact **is** present
+      - not to reveal
       - will not guess
       - won't guess
       - won’t guess
