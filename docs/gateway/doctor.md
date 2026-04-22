@@ -389,6 +389,9 @@ are missing, doctor reports the packages and installs them in
 use `openclaw plugins install` / `openclaw plugins update`; doctor does not
 install dependencies for arbitrary plugin paths.
 
+Config doctor checks use setup/read-only channel adapters where available so
+full bundled channel runtimes are not loaded before this dependency check runs.
+
 ### 8) Gateway service migrations and cleanup hints
 
 Doctor detects legacy gateway services (launchd/systemd/schtasks) and
