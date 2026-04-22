@@ -2,7 +2,6 @@ import {
   getBundledChannelSetupPlugin,
   listBundledChannelSetupPlugins,
 } from "../../../channels/plugins/bundled.js";
-import { resolveReadOnlyChannelPluginsForConfig } from "../../../channels/plugins/read-only.js";
 import { getLoadedChannelPlugin, listChannelPlugins } from "../../../channels/plugins/registry.js";
 import type {
   ChannelDoctorAdapter,
@@ -62,44 +61,18 @@ function safeGetBundledChannelSetupPlugin(id: string) {
   }
 }
 
-function safeListReadOnlyChannelPlugins(cfg: OpenClawConfig) {
-  try {
-    return resolveReadOnlyChannelPluginsForConfig(cfg, {
-      includePersistedAuthState: false,
-    }).plugins;
-  } catch {
-    return [];
-  }
-}
-
-function listChannelDoctorEntries(
-  channelIds?: readonly string[],
-  cfg?: OpenClawConfig,
-): ChannelDoctorEntry[] {
+function listChannelDoctorEntries(channelIds?: readonly string[]): ChannelDoctorEntry[] {
   const byId = new Map<string, ChannelDoctorEntry>();
   const selectedIds = channelIds ? new Set(channelIds) : null;
-  const readOnlyPlugins =
-    selectedIds && cfg
-      ? safeListReadOnlyChannelPlugins(cfg).filter((plugin) => selectedIds.has(plugin.id))
-      : [];
-  const readOnlyDoctorPluginIds = new Set(
-    readOnlyPlugins.filter((plugin) => plugin.doctor).map((plugin) => plugin.id),
-  );
   const plugins = selectedIds
-    ? [
-        ...readOnlyPlugins,
-        ...[...selectedIds].flatMap((id) => {
-          if (readOnlyDoctorPluginIds.has(id)) {
-            return [];
-          }
-          const loadedPlugin = safeGetLoadedChannelPlugin(id);
-          if (loadedPlugin?.doctor) {
-            return [loadedPlugin];
-          }
-          const bundledSetupPlugin = safeGetBundledChannelSetupPlugin(id);
-          return bundledSetupPlugin ? [bundledSetupPlugin] : [];
-        }),
-      ]
+    ? [...selectedIds].flatMap((id) => {
+        const loadedPlugin = safeGetLoadedChannelPlugin(id);
+        if (loadedPlugin?.doctor) {
+          return [loadedPlugin];
+        }
+        const bundledSetupPlugin = safeGetBundledChannelSetupPlugin(id);
+        return bundledSetupPlugin ? [bundledSetupPlugin] : [];
+      })
     : [...safeListActiveChannelPlugins(), ...safeListBundledChannelSetupPlugins()];
   for (const plugin of plugins) {
     if (!plugin.doctor) {
@@ -120,10 +93,7 @@ export async function runChannelDoctorConfigSequences(params: {
 }): Promise<ChannelDoctorSequenceResult> {
   const changeNotes: string[] = [];
   const warningNotes: string[] = [];
-  for (const entry of listChannelDoctorEntries(
-    collectConfiguredChannelIds(params.cfg),
-    params.cfg,
-  )) {
+  for (const entry of listChannelDoctorEntries(collectConfiguredChannelIds(params.cfg))) {
     const result = await entry.doctor.runConfigSequence?.(params);
     if (!result) {
       continue;
@@ -143,7 +113,7 @@ export function collectChannelDoctorCompatibilityMutations(
   }
   const mutations: ChannelDoctorConfigMutation[] = [];
   let nextCfg = cfg;
-  for (const entry of listChannelDoctorEntries(channelIds, cfg)) {
+  for (const entry of listChannelDoctorEntries(channelIds)) {
     const mutation = entry.doctor.normalizeCompatibilityConfig?.({ cfg: nextCfg });
     if (!mutation || mutation.changes.length === 0) {
       continue;
@@ -159,7 +129,7 @@ export async function collectChannelDoctorStaleConfigMutations(
 ): Promise<ChannelDoctorConfigMutation[]> {
   const mutations: ChannelDoctorConfigMutation[] = [];
   let nextCfg = cfg;
-  for (const entry of listChannelDoctorEntries(collectConfiguredChannelIds(cfg), cfg)) {
+  for (const entry of listChannelDoctorEntries(collectConfiguredChannelIds(cfg))) {
     const mutation = await entry.doctor.cleanStaleConfig?.({ cfg: nextCfg });
     if (!mutation || mutation.changes.length === 0) {
       continue;
@@ -175,10 +145,7 @@ export async function collectChannelDoctorPreviewWarnings(params: {
   doctorFixCommand: string;
 }): Promise<string[]> {
   const warnings: string[] = [];
-  for (const entry of listChannelDoctorEntries(
-    collectConfiguredChannelIds(params.cfg),
-    params.cfg,
-  )) {
+  for (const entry of listChannelDoctorEntries(collectConfiguredChannelIds(params.cfg))) {
     const lines = await entry.doctor.collectPreviewWarnings?.(params);
     if (lines?.length) {
       warnings.push(...lines);
@@ -191,10 +158,7 @@ export async function collectChannelDoctorMutableAllowlistWarnings(params: {
   cfg: OpenClawConfig;
 }): Promise<string[]> {
   const warnings: string[] = [];
-  for (const entry of listChannelDoctorEntries(
-    collectConfiguredChannelIds(params.cfg),
-    params.cfg,
-  )) {
+  for (const entry of listChannelDoctorEntries(collectConfiguredChannelIds(params.cfg))) {
     const lines = await entry.doctor.collectMutableAllowlistWarnings?.(params);
     if (lines?.length) {
       warnings.push(...lines);
@@ -209,10 +173,7 @@ export async function collectChannelDoctorRepairMutations(params: {
 }): Promise<ChannelDoctorConfigMutation[]> {
   const mutations: ChannelDoctorConfigMutation[] = [];
   let nextCfg = params.cfg;
-  for (const entry of listChannelDoctorEntries(
-    collectConfiguredChannelIds(params.cfg),
-    params.cfg,
-  )) {
+  for (const entry of listChannelDoctorEntries(collectConfiguredChannelIds(params.cfg))) {
     const mutation = await entry.doctor.repairConfig?.({
       cfg: nextCfg,
       doctorFixCommand: params.doctorFixCommand,

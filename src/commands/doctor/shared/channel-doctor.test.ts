@@ -6,7 +6,6 @@ const mocks = vi.hoisted(() => ({
   getBundledChannelSetupPlugin: vi.fn(),
   listChannelPlugins: vi.fn(),
   listBundledChannelSetupPlugins: vi.fn(),
-  resolveReadOnlyChannelPluginsForConfig: vi.fn(),
 }));
 
 vi.mock("../../../channels/plugins/registry.js", () => ({
@@ -24,24 +23,16 @@ vi.mock("../../../channels/plugins/bundled.js", () => ({
   ) => mocks.listBundledChannelSetupPlugins(...args),
 }));
 
-vi.mock("../../../channels/plugins/read-only.js", () => ({
-  resolveReadOnlyChannelPluginsForConfig: (
-    ...args: Parameters<typeof mocks.resolveReadOnlyChannelPluginsForConfig>
-  ) => mocks.resolveReadOnlyChannelPluginsForConfig(...args),
-}));
-
 describe("channel doctor compatibility mutations", () => {
   beforeEach(() => {
     mocks.getLoadedChannelPlugin.mockReset();
     mocks.getBundledChannelSetupPlugin.mockReset();
     mocks.listChannelPlugins.mockReset();
     mocks.listBundledChannelSetupPlugins.mockReset();
-    mocks.resolveReadOnlyChannelPluginsForConfig.mockReset();
     mocks.getLoadedChannelPlugin.mockReturnValue(undefined);
     mocks.getBundledChannelSetupPlugin.mockReturnValue(undefined);
     mocks.listChannelPlugins.mockReturnValue([]);
     mocks.listBundledChannelSetupPlugins.mockReturnValue([]);
-    mocks.resolveReadOnlyChannelPluginsForConfig.mockReturnValue({ plugins: [] });
   });
 
   it("skips plugin discovery when no channels are configured", () => {
@@ -50,21 +41,16 @@ describe("channel doctor compatibility mutations", () => {
     expect(result).toEqual([]);
     expect(mocks.listChannelPlugins).not.toHaveBeenCalled();
     expect(mocks.listBundledChannelSetupPlugins).not.toHaveBeenCalled();
-    expect(mocks.resolveReadOnlyChannelPluginsForConfig).not.toHaveBeenCalled();
   });
 
-  it("uses read-only doctor adapters for configured channel ids", () => {
+  it("uses loaded doctor adapters for configured channel ids", () => {
     const normalizeCompatibilityConfig = vi.fn(({ cfg }: { cfg: unknown }) => ({
       config: cfg,
       changes: ["matrix"],
     }));
-    mocks.resolveReadOnlyChannelPluginsForConfig.mockReturnValue({
-      plugins: [
-        {
-          id: "matrix",
-          doctor: { normalizeCompatibilityConfig },
-        },
-      ],
+    mocks.getLoadedChannelPlugin.mockReturnValue({
+      id: "matrix",
+      doctor: { normalizeCompatibilityConfig },
     });
 
     const cfg = {
@@ -79,27 +65,17 @@ describe("channel doctor compatibility mutations", () => {
 
     expect(result).toHaveLength(1);
     expect(normalizeCompatibilityConfig).toHaveBeenCalledTimes(1);
-    expect(mocks.resolveReadOnlyChannelPluginsForConfig).toHaveBeenCalledWith(cfg, {
-      includePersistedAuthState: false,
-    });
-    expect(mocks.getLoadedChannelPlugin).not.toHaveBeenCalledWith("matrix");
+    expect(mocks.getLoadedChannelPlugin).toHaveBeenCalledWith("matrix");
     expect(mocks.getBundledChannelSetupPlugin).not.toHaveBeenCalledWith("matrix");
     expect(mocks.getBundledChannelSetupPlugin).not.toHaveBeenCalledWith("discord");
     expect(mocks.listBundledChannelSetupPlugins).not.toHaveBeenCalled();
   });
 
-  it("falls back when configured read-only channel plugin has no doctor adapter", () => {
+  it("falls back when configured loaded channel plugin has no doctor adapter", () => {
     const normalizeCompatibilityConfig = vi.fn(({ cfg }: { cfg: unknown }) => ({
       config: cfg,
       changes: ["discord"],
     }));
-    mocks.resolveReadOnlyChannelPluginsForConfig.mockReturnValue({
-      plugins: [
-        {
-          id: "discord",
-        },
-      ],
-    });
     mocks.getBundledChannelSetupPlugin.mockImplementation((id: string) =>
       id === "discord"
         ? {
@@ -124,9 +100,6 @@ describe("channel doctor compatibility mutations", () => {
   });
 
   it("keeps configured channel doctor lookup non-fatal when setup loading fails", () => {
-    mocks.resolveReadOnlyChannelPluginsForConfig.mockImplementation(() => {
-      throw new Error("missing runtime dep");
-    });
     mocks.getBundledChannelSetupPlugin.mockImplementation((id: string) => {
       if (id === "discord") {
         throw new Error("missing runtime dep");
