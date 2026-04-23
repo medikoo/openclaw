@@ -92,10 +92,16 @@ describe("readBestEffortLoggingConfig", () => {
     expect(requireConfigMock).toHaveBeenCalledWith("../config/config.js");
     expect(requireConfigMock).toHaveBeenCalledWith("./config.js");
     expect(requireConfigMock).toHaveBeenCalledWith("./config-Ck9ngs9g.js");
+    expect(requireConfigMock).not.toHaveBeenCalledWith("./config-loader-Dqw-HP5B.js");
   });
 
   it("ignores candidates that do not export loadConfig", async () => {
     const requireConfigMock = vi.fn(() => ({}));
+    vi.doMock("node:fs", () => ({
+      default: {
+        readdirSync: () => [],
+      },
+    }));
 
     const { readBestEffortLoggingConfig } = await import("./config-loader.js");
 

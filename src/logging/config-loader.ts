@@ -39,13 +39,18 @@ function isLoggingConfig(value: unknown): value is LoggingConfig {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
+function isCandidateConfigChunk(fileName: string): boolean {
+  return (
+    HASHED_FLATTENED_CONFIG_MODULE_BASENAME_RE.test(fileName) &&
+    !fileName.startsWith("config-loader-")
+  );
+}
+
 function listFlattenedConfigModuleSpecifiers(): string[] {
   try {
     return fs
       .readdirSync(MODULE_DIR_PATH, { withFileTypes: true })
-      .filter(
-        (entry) => entry.isFile() && HASHED_FLATTENED_CONFIG_MODULE_BASENAME_RE.test(entry.name),
-      )
+      .filter((entry) => entry.isFile() && isCandidateConfigChunk(entry.name))
       .map((entry) => `./${entry.name}`)
       .toSorted((left, right) => left.localeCompare(right));
   } catch {
