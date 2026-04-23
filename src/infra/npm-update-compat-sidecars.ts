@@ -1,4 +1,11 @@
 const LEGACY_QA_LAB_DIR = ["qa", "lab"].join("-");
+const LEGACY_QA_CHANNEL_DIR = ["qa", "channel"].join("-");
+export const LEGACY_QA_CHANNEL_RUNTIME_API_PATH = [
+  "dist",
+  "extensions",
+  LEGACY_QA_CHANNEL_DIR,
+  "runtime-api.js",
+].join("/");
 
 type NpmUpdateCompatSidecar = {
   path: string;
@@ -9,7 +16,7 @@ const EMPTY_RUNTIME_SIDECAR = "export {};\n";
 
 export const NPM_UPDATE_COMPAT_SIDECARS = [
   {
-    path: "dist/extensions/qa-channel/runtime-api.js",
+    path: LEGACY_QA_CHANNEL_RUNTIME_API_PATH,
     content: EMPTY_RUNTIME_SIDECAR,
   },
   {
