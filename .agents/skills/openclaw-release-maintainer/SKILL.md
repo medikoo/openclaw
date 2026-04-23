@@ -25,9 +25,11 @@ Use this skill for release and publish-time workflow. Keep ordinary development 
 - Before release branching, commit any dirty files in coherent groups, push,
   pull/rebase, then run `/changelog` on `main` and commit/push/pull that
   changelog rewrite immediately before creating the release branch.
-- Do not delete or rewrite beta tags after they leave the machine. If a
-  published or pushed beta needs a fix, commit the fix on the release branch and
-  increment to the next `-beta.N`.
+- Do not delete or rewrite beta tags after npm publish has completed for that
+  exact beta version. If a beta tag was only pushed to GitHub and no npm package
+  was published for it yet, it may be moved/recreated to include late release
+  fixes when the operator approves that. If npm publish already happened, commit
+  the fix on the release branch and increment to the next `-beta.N`.
 - For a beta release train, run the full pre-npm test roster before publishing
   each beta. After a beta is published, run the smaller published-install roster
   focused on install/update/Docker/Parallels. If anything fails, fix it on the
