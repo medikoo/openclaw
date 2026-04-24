@@ -1430,7 +1430,7 @@ if (entries && typeof entries === "object" && !Array.isArray(entries)) {
 if (Array.isArray(plugins.allow)) {
   plugins.allow = plugins.allow.filter((pluginId) => pluginId !== "feishu" && pluginId !== "whatsapp");
 }
-fs.writeFileSync(configPath, `${JSON.stringify(config, null, 2)}\n`);
+fs.writeFileSync(configPath, JSON.stringify(config, null, 2) + "\\n");
 JS
 }
 stop_openclaw_gateway_processes() {
@@ -1556,7 +1556,7 @@ if (entries && typeof entries === "object" && !Array.isArray(entries)) {
 if (Array.isArray(plugins.allow)) {
   plugins.allow = plugins.allow.filter((pluginId) => pluginId !== "feishu" && pluginId !== "whatsapp");
 }
-fs.writeFileSync(configPath, `${JSON.stringify(config, null, 2)}\n`);
+fs.writeFileSync(configPath, JSON.stringify(config, null, 2) + "\\n");
 JS
 }
 stop_openclaw_gateway_processes() {
