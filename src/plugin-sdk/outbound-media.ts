@@ -10,6 +10,11 @@ export type OutboundMediaLoadOptions = {
   fetchImpl?: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
   requestInit?: RequestInit;
   trustExplicitProxyDns?: boolean;
+  /**
+   * Whether image buffers should be re-encoded/resized to fit `maxBytes`.
+   * Default: true. Pass false to upload original bytes (the buffer must already fit `maxBytes`).
+   */
+  optimizeImages?: boolean;
 };
 
 /** Load outbound media from a remote URL or approved local path using the shared web-media policy. */
@@ -28,6 +33,7 @@ export async function loadOutboundMediaFromUrl(
       fetchImpl: options.fetchImpl,
       requestInit: options.requestInit,
       trustExplicitProxyDns: options.trustExplicitProxyDns,
+      optimizeImages: options.optimizeImages,
     }),
   );
 }

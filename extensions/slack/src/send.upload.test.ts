@@ -1,6 +1,10 @@
 import type { WebClient } from "@slack/web-api";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { installSlackBlockTestMocks } from "./blocks.test-helpers.js";
+import {
+  installSlackBlockTestMocks,
+  resetSlackBlockTestAccountConfig,
+  setSlackBlockTestAccountConfig,
+} from "./blocks.test-helpers.js";
 
 // --- Module mocks (must precede dynamic import) ---
 installSlackBlockTestMocks();
@@ -87,10 +91,12 @@ describe("sendMessageSlack file upload with user IDs", () => {
     loadOutboundMediaFromUrlMock.mockClear();
     clearSlackDmChannelCache();
     clearSlackSendQueuesForTest();
+    resetSlackBlockTestAccountConfig();
   });
 
   afterEach(() => {
     globalThis.fetch = originalFetch;
+    resetSlackBlockTestAccountConfig();
     vi.restoreAllMocks();
   });
 
@@ -330,5 +336,72 @@ describe("sendMessageSlack file upload with user IDs", () => {
         files: [expect.objectContaining({ id: "F001", title: "custom-name.bin" })],
       }),
     );
+  });
+
+  it("forwards optimizeImages: false and uploads original bytes + MIME when mediaOptimize is disabled", async () => {
+    const client = createUploadTestClient();
+    const pngSignature = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+    const pngBytes = Buffer.concat([pngSignature, Buffer.from("original-png-payload")]);
+    loadOutboundMediaFromUrlMock.mockResolvedValueOnce({
+      buffer: pngBytes,
+      contentType: "image/png",
+      kind: "image",
+      fileName: "screenshot.png",
+    });
+    setSlackBlockTestAccountConfig({ mediaOptimize: false });
+
+    await sendMessageSlack("channel:C123CHAN", "preserve", {
+      token: "xoxb-test",
+      cfg: SLACK_TEST_CFG,
+      client,
+      mediaUrl: "/tmp/screenshot.png",
+    });
+
+    expect(loadOutboundMediaFromUrlMock).toHaveBeenCalledWith(
+      "/tmp/screenshot.png",
+      expect.objectContaining({ optimizeImages: false }),
+    );
+    expect(client.files.getUploadURLExternal).toHaveBeenCalledWith({
+      filename: "screenshot.png",
+      length: pngBytes.length,
+    });
+    const fetchCall = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls.at(-1);
+    expect(fetchCall?.[0]).toBe("https://uploads.slack.test/upload");
+    const init = fetchCall?.[1] as RequestInit & {
+      body: Uint8Array;
+      headers: Record<string, string>;
+    };
+    expect(init.method).toBe("POST");
+    expect(init.headers).toEqual({ "Content-Type": "image/png" });
+    expect(Buffer.from(init.body)).toEqual(pngBytes);
+  });
+
+  it("does not forward optimizeImages when mediaOptimize is unset, preserving default optimize behavior", async () => {
+    const client = createUploadTestClient();
+
+    await sendMessageSlack("channel:C123CHAN", "default", {
+      token: "xoxb-test",
+      cfg: SLACK_TEST_CFG,
+      client,
+      mediaUrl: "/tmp/screenshot.png",
+    });
+
+    const opts = loadOutboundMediaFromUrlMock.mock.calls.at(-1)?.[1] as Record<string, unknown>;
+    expect(opts).not.toHaveProperty("optimizeImages");
+  });
+
+  it("does not forward optimizeImages when mediaOptimize is explicitly true (default behavior)", async () => {
+    const client = createUploadTestClient();
+    setSlackBlockTestAccountConfig({ mediaOptimize: true });
+
+    await sendMessageSlack("channel:C123CHAN", "explicit-true", {
+      token: "xoxb-test",
+      cfg: SLACK_TEST_CFG,
+      client,
+      mediaUrl: "/tmp/screenshot.png",
+    });
+
+    const opts = loadOutboundMediaFromUrlMock.mock.calls.at(-1)?.[1] as Record<string, unknown>;
+    expect(opts).not.toHaveProperty("optimizeImages");
   });
 });

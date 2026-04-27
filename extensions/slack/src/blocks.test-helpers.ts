@@ -49,6 +49,14 @@ export function installSlackBlockTestMocks() {
   return;
 }
 
+export function setSlackBlockTestAccountConfig(config: Record<string, unknown>): void {
+  slackBlockTestState.account.config = config;
+}
+
+export function resetSlackBlockTestAccountConfig(): void {
+  slackBlockTestState.account.config = {};
+}
+
 export function createSlackEditTestClient(): SlackEditTestClient {
   return {
     chat: {

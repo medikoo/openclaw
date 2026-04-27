@@ -13,7 +13,7 @@ Docs: https://docs.openclaw.ai
 
 ### Fixes
 
-- Slack: add `channels.slack.mediaOptimize` (default true) so operators can disable outbound image re-encode/resize and upload images at original quality (subject to `mediaMaxMb`). Thanks @medikoo.
+- Slack/plugin-sdk: add `channels.slack.mediaOptimize` (default true) and an additive `optimizeImages` option on the public `loadOutboundMediaFromUrl` SDK seam so operators can disable outbound image re-encode/resize and upload images at original quality with original MIME (subject to `mediaMaxMb`). Thanks @medikoo.
 - Agents/sessions: acquire the session write lock only after cold bootstrap, plugin, and tool setup so fallback runs are not blocked by stalled pre-model startup work. Thanks @codex.
 - Gateway/models: skip external OpenRouter and LiteLLM pricing refreshes for local/self-hosted model endpoints so startup does not wait on remote pricing catalogs for local-only Ollama, vLLM, and compatible providers. Thanks @codex.
 - CLI/plugins: stop security-blocked plugin installs from retrying as hook packs, so normal plugin packages report the scanner failure without a misleading "not a valid hook pack" follow-up. Fixes #61175; supersedes #64102. Thanks @KonsultDigital and @ziyincody.
