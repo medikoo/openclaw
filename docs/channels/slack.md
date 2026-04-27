@@ -619,6 +619,7 @@ Notes:
     - `channels.slack.chunkMode="newline"` enables paragraph-first splitting
     - file sends use Slack upload APIs and can include thread replies (`thread_ts`)
     - outbound media cap follows `channels.slack.mediaMaxMb` when configured; otherwise channel sends use MIME-kind defaults from media pipeline
+    - outbound images are re-encoded to fit the cap by default; set `channels.slack.mediaOptimize: false` to upload at original quality (the original buffer must already fit `mediaMaxMb`)
   </Accordion>
 
   <Accordion title="Delivery targets">
@@ -797,7 +798,7 @@ Primary reference: [Configuration reference - Slack](/gateway/config-channels#sl
 - compatibility toggle: `dangerouslyAllowNameMatching` (break-glass; keep off unless needed)
 - channel access: `groupPolicy`, `channels.*`, `channels.*.users`, `channels.*.requireMention`
 - threading/history: `replyToMode`, `replyToModeByChatType`, `thread.*`, `historyLimit`, `dmHistoryLimit`, `dms.*.historyLimit`
-- delivery: `textChunkLimit`, `chunkMode`, `mediaMaxMb`, `streaming`, `streaming.nativeTransport`, `streaming.preview.toolProgress`
+- delivery: `textChunkLimit`, `chunkMode`, `mediaMaxMb`, `mediaOptimize`, `streaming`, `streaming.nativeTransport`, `streaming.preview.toolProgress`
 - ops/features: `configWrites`, `commands.native`, `slashCommand.*`, `actions.*`, `userToken`, `userTokenReadOnly`
 
 </Accordion>

@@ -290,12 +290,14 @@ async function uploadSlackFile(params: {
   caption?: string;
   threadTs?: string;
   maxBytes?: number;
+  optimizeImages?: boolean;
 }): Promise<string> {
   const { buffer, contentType, fileName } = await loadOutboundMediaFromUrl(params.mediaUrl, {
     maxBytes: params.maxBytes,
     mediaAccess: params.mediaAccess,
     mediaLocalRoots: params.mediaLocalRoots,
     mediaReadFile: params.mediaReadFile,
+    ...(params.optimizeImages !== undefined ? { optimizeImages: params.optimizeImages } : {}),
   });
   const uploadFileName = params.uploadFileName ?? fileName ?? "upload";
   const uploadTitle = params.uploadTitle ?? uploadFileName;
@@ -446,6 +448,7 @@ async function sendMessageSlackQueued(params: {
     typeof account.config.mediaMaxMb === "number"
       ? account.config.mediaMaxMb * 1024 * 1024
       : undefined;
+  const optimizeImages = account.config.mediaOptimize === false ? false : undefined;
 
   let lastMessageId = "";
   if (opts.mediaUrl) {
@@ -462,6 +465,7 @@ async function sendMessageSlackQueued(params: {
       caption: firstChunk,
       threadTs: opts.threadTs,
       maxBytes: mediaMaxBytes,
+      ...(optimizeImages !== undefined ? { optimizeImages } : {}),
     });
     for (const chunk of rest) {
       const response = await postSlackMessageBestEffort({

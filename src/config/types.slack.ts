@@ -160,6 +160,11 @@ export type SlackAccountConfig = {
   /** Streaming + chunking settings. Prefer this nested shape over legacy flat keys. */
   streaming?: SlackChannelStreamingConfig;
   mediaMaxMb?: number;
+  /**
+   * Whether outbound images are re-encoded/resized to fit Slack delivery caps.
+   * Default: true. Set to false to upload images at original quality (subject to mediaMaxMb).
+   */
+  mediaOptimize?: boolean;
   /** Reaction notification mode (off|own|all|allowlist). Default: own. */
   reactionNotifications?: SlackReactionNotificationMode;
   /** Allowlist for reaction notifications when mode is allowlist. */
