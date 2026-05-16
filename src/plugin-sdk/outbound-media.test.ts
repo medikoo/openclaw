@@ -103,4 +103,34 @@ describe("loadOutboundMediaFromUrl", () => {
       hostReadCapability: true,
     });
   });
+
+  it("forwards optimizeImages=false so callers can opt out of resize/recompression", async () => {
+    loadWebMediaMock.mockResolvedValueOnce({
+      buffer: Buffer.from("x"),
+      kind: "image",
+      contentType: "image/png",
+    });
+
+    await loadOutboundMediaFromUrl("https://example.com/image.png", {
+      optimizeImages: false,
+    });
+
+    expect(loadWebMediaMock).toHaveBeenCalledWith("https://example.com/image.png", {
+      optimizeImages: false,
+    });
+  });
+
+  it("omits optimizeImages when caller does not set it (default optimization)", async () => {
+    loadWebMediaMock.mockResolvedValueOnce({
+      buffer: Buffer.from("x"),
+      kind: "image",
+      contentType: "image/png",
+    });
+
+    await loadOutboundMediaFromUrl("https://example.com/image.png", { maxBytes: 1024 });
+
+    expect(loadWebMediaMock).toHaveBeenCalledWith("https://example.com/image.png", {
+      maxBytes: 1024,
+    });
+  });
 });

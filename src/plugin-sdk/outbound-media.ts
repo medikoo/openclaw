@@ -10,6 +10,12 @@ export type OutboundMediaLoadOptions = {
   fetchImpl?: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
   requestInit?: RequestInit;
   trustExplicitProxyDns?: boolean;
+  /**
+   * If false, skip image optimization (resize + recompression) and upload original
+   * bytes. Default: true. Channels that prefer original-quality uploads (e.g. when a
+   * user opts out for Slack) can set this to false.
+   */
+  optimizeImages?: boolean;
 };
 
 /** Load outbound media from a remote URL or approved local path using the shared web-media policy. */
@@ -28,6 +34,7 @@ export async function loadOutboundMediaFromUrl(
       fetchImpl: options.fetchImpl,
       requestInit: options.requestInit,
       trustExplicitProxyDns: options.trustExplicitProxyDns,
+      optimizeImages: options.optimizeImages,
     }),
   );
 }

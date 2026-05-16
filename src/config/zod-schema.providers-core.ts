@@ -1045,6 +1045,12 @@ export const SlackAccountSchema = z
     unfurlMedia: z.boolean().optional(),
     streaming: SlackStreamingConfigSchema.optional(),
     mediaMaxMb: z.number().positive().optional(),
+    mediaOptimize: z
+      .boolean()
+      .optional()
+      .describe(
+        "If false, disable image optimization (resize/recompression) for outbound media on this Slack account. Default: true. Set to false to upload original image bytes (still subject to mediaMaxMb cap).",
+      ),
     reactionNotifications: z.enum(["off", "own", "all", "allowlist"]).optional(),
     reactionAllowlist: z.array(z.union([z.string(), z.number()])).optional(),
     replyToMode: ReplyToModeSchema.optional(),

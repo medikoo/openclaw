@@ -437,4 +437,50 @@ describe("sendMessageSlack file upload with user IDs", () => {
       file: { id: "F001", title: "custom-name.bin" },
     });
   });
+
+  it("does not pass optimizeImages when mediaOptimize is unset (default optimization)", async () => {
+    const client = createUploadTestClient();
+
+    await sendMessageSlack("channel:C123CHAN", "caption", {
+      token: "xoxb-test",
+      cfg: SLACK_TEST_CFG,
+      client,
+      mediaUrl: "/tmp/screenshot.png",
+    });
+
+    expect(loadOutboundMediaFromUrlMock).toHaveBeenCalledTimes(1);
+    const [, options] = loadOutboundMediaFromUrlMock.mock.calls[0]!;
+    expect(options).toBeDefined();
+    expect((options as { optimizeImages?: boolean }).optimizeImages).toBeUndefined();
+  });
+
+  it("propagates mediaOptimize=false from account config to outbound media loader", async () => {
+    const client = createUploadTestClient();
+
+    await sendMessageSlack("channel:C123CHAN", "caption", {
+      token: "xoxb-test",
+      cfg: { channels: { slack: { botToken: "xoxb-test", mediaOptimize: false } } },
+      client,
+      mediaUrl: "/tmp/screenshot.png",
+    });
+
+    expect(loadOutboundMediaFromUrlMock).toHaveBeenCalledTimes(1);
+    const [, options] = loadOutboundMediaFromUrlMock.mock.calls[0]!;
+    expect((options as { optimizeImages?: boolean }).optimizeImages).toBe(false);
+  });
+
+  it("propagates mediaOptimize=true from account config to outbound media loader", async () => {
+    const client = createUploadTestClient();
+
+    await sendMessageSlack("channel:C123CHAN", "caption", {
+      token: "xoxb-test",
+      cfg: { channels: { slack: { botToken: "xoxb-test", mediaOptimize: true } } },
+      client,
+      mediaUrl: "/tmp/screenshot.png",
+    });
+
+    expect(loadOutboundMediaFromUrlMock).toHaveBeenCalledTimes(1);
+    const [, options] = loadOutboundMediaFromUrlMock.mock.calls[0]!;
+    expect((options as { optimizeImages?: boolean }).optimizeImages).toBe(true);
+  });
 });

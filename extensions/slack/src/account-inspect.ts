@@ -178,6 +178,7 @@ export function inspectSlackAccount(params: {
     groupPolicy: merged.groupPolicy,
     textChunkLimit: merged.textChunkLimit,
     mediaMaxMb: merged.mediaMaxMb,
+    mediaOptimize: merged.mediaOptimize,
     reactionNotifications: merged.reactionNotifications,
     reactionAllowlist: merged.reactionAllowlist,
     replyToMode: merged.replyToMode,

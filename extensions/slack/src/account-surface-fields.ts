@@ -4,6 +4,7 @@ export type SlackAccountSurfaceFields = {
   groupPolicy?: SlackAccountConfig["groupPolicy"];
   textChunkLimit?: SlackAccountConfig["textChunkLimit"];
   mediaMaxMb?: SlackAccountConfig["mediaMaxMb"];
+  mediaOptimize?: SlackAccountConfig["mediaOptimize"];
   reactionNotifications?: SlackAccountConfig["reactionNotifications"];
   reactionAllowlist?: SlackAccountConfig["reactionAllowlist"];
   replyToMode?: SlackAccountConfig["replyToMode"];
